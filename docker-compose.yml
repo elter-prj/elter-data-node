@@ -1,0 +1,23 @@
+version: '2'
+
+volumes:
+  sos-db-volume:
+services:
+  sos-db:
+    image: mdillon/postgis:9.6
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres9192939494.a
+      - POSTGRES_DB=sos
+      # modified as per https://hub.docker.com/_/postgres/ for use with volumes
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - sos-db-volume:/var/lib/postgresql/data/pgdata
+  sos-service:
+    build: .
+    ports:
+      - 8080:8080
+    links:
+      - sos-db:postgres
