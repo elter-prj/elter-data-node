@@ -24,6 +24,10 @@ To stop the containers, execute:
 
 This will stop, but not remove the data held in the database.  The database data files are stored on a volume on the host, rather than the container, so if re-building with a different starting database, it is necessary to remove the existing volume - this will remove all data entered in the previous sessions that the container has been active.
 
+## Initial Usernames &Passwords
+
+For this example setup, the database user is `postgres`, and the password is `postgres`.  For the 52N app, the admin user is `sos_admin` and the password is `asdf892342nk.a9`
+
 # Configuration
 
 ## 52North SOS
@@ -37,7 +41,9 @@ The `configuration.db` file is a binary SQlite file, while `datasource.propertie
 
 ### Metadata & Passwords
 
-The configuration.db holds the metadata and application password.  This metadata is currently setup for CEH, as is the application password.  To use your own metadata and password, you would deploy an instance of the 52N SOS WAR application, say on your localhost, configure that instance with your metadata and admin's username and password, then copy that `configuration.db` file into this project.
+The configuration.db holds the metadata and application password.  This metadata is currently setup for CEH, as is the application password.  To use your own metadata, you have two choices.  First you could deploy an instance of the 52N SOS WAR application, say on your localhost, configure that instance with your metadata and admin's username (if you wanted to change the username), then copy that `configuration.db` file into this project.  The second choice would be to use SQlite to edit the fields in the database.
+
+To change the SOS app password, login to the admin section using the above credentials, open the `Settings` page and navigate to the `Credentials` tab where the change can be made.
 
 The database connection details in `datasource.properties` holds the PostgreSQL connection details including the database username and password.  These values must match the variable values provided in the `docker-compose.yml` for the PostgreSQL instance.
 
