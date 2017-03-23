@@ -67,7 +67,7 @@ Now you can gzip the file, and replace the existing `sos.sql.gz` file with your 
 
 # Vagrant Local-Host Development
 
-Included in this repository is a Vagrant directory, the readme and contents of which allow for a local deployment of Get-IT and 52N SOS app's running on an Ubuntu Precise based VM.
+Included in this repository is a Vagrant directory, the readme and contents of which allow for a local deployment of Get-IT and 52N SOS apps running on an Ubuntu Precise based VM.
 
 # Data Handling
 
