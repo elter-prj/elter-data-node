@@ -9,11 +9,11 @@
     "apiUrl": "http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/"
   }],
   "restApiUrls": {
-    "http://localhost:8080/observations/api/v1/": "52n-sos-webapp"
+    "http://192.171.139.65:8080/observations/api/v1/": "52n-sos-webapp"
   },
   "defaultProvider": {
     "serviceID": "srv_3dec8ce040d9506c5aba685c9d134156",
-    "url": "http://localhost:8080/observations/api/v1/"
+    "url": "http://192.171.139.65:8080/observations/api/v1/"
   },
   "chartOptions": {
     "yaxis": {
