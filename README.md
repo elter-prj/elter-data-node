@@ -64,3 +64,11 @@ To:
 `CREATE SCHEMA IF NOT EXISTS schema-name`
 
 Now you can gzip the file, and replace the existing `sos.sql.gz` file with your new data filled version, rebuild the image, and it will now deploy with that data.
+
+# Vagrant Local-Host Development
+
+Included in this repository is a Vagrant directory, the readme and contents of which allow for a local deployment of Get-IT and 52N SOS app's running on an Ubuntu Precise based VM.
+
+# Data Handling
+
+The contents of the data handling directory are used to populate the 52N SOS server.
