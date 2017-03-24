@@ -466,7 +466,7 @@ insert_sensor_output <- sapply(1:dim(sensors)[1], function(x){
                               </sml:outputs>
                        
                               <sml:position>
-                                <swe:Vector referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4326">
+                                <swe:Vector referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
                                   <swe:coordinate name="northing">
                                     <swe:Quantity definition="latitude" axisID="Lat">
                                       <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
@@ -479,29 +479,13 @@ insert_sensor_output <- sapply(1:dim(sensors)[1], function(x){
                                       <swe:value>',sensors$lon[x],'</swe:value>
                                     </swe:Quantity>
                                   </swe:coordinate>
-                                </swe:Vector>
-
-                                <swe:Vector referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
-                                  <swe:coordinate name="north">
-                                    <swe:Quantity definition="latitude" axisID="Lat">
-                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
-                                      <swe:value>',sensors$lat[x],'</swe:value>
-                                    </swe:Quantity>
-                                  </swe:coordinate>
-                                  <swe:coordinate name="east">
-                                    <swe:Quantity definition="longitude" axisID="Lon">
-                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
-                                      <swe:value>',sensors$lon[x],'</swe:value>
-                                    </swe:Quantity>
-                                  </swe:coordinate>
-                                  <swe:coordinate name="up">
+                                  <swe:coordinate name="altitude">
                                     <swe:Quantity definition="ellipsoidal height" axisID="Alt">
                                       <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_110" code="m"/>
                                       <swe:value>',sensors$height[x],'</swe:value>
                                     </swe:Quantity>
                                   </swe:coordinate>
                                 </swe:Vector>
-
                               </sml:position>
                        
                             </sml:PhysicalSystem>
@@ -622,15 +606,15 @@ for (i in 1:length(site_data$SITECODE)) {
     # Split the sensors into groups of n, and for each group
     #  run n parallel processes to load the data into the
     #  system
-    numCores <- 4
+    numCores <- 1
     sensor_seque <- seq(from = 1, to = length(sensor_subset$FIELDNAME), by = numCores)
     
     for (s in sensor_seque) {
       
       # Linux based parallelisation
-      registerDoParallel(cores = numCores)
+      #registerDoParallel(cores = numCores)
       
-      foreach(j = s:(s + (numCores - 1))) %dopar% {      
+      foreach(j = s:(s + (numCores - 1))) %do% {      
         sensor_obs_data <- obs_data %>%
           filter(FIELDNAME == sensor_subset$FIELDNAME[j])
         
