@@ -469,23 +469,39 @@ insert_sensor_output <- sapply(1:dim(sensors)[1], function(x){
                                 <swe:Vector referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4326">
                                   <swe:coordinate name="northing">
                                     <swe:Quantity definition="latitude" axisID="Lat">
-                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="degree"/>
+                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
                                       <swe:value>',sensors$lat[x],'</swe:value>
                                     </swe:Quantity>
                                   </swe:coordinate>
                                   <swe:coordinate name="easting">
                                     <swe:Quantity definition="longitude" axisID="Lon">
-                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="degree"/>
+                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
                                       <swe:value>',sensors$lon[x],'</swe:value>
                                     </swe:Quantity>
                                   </swe:coordinate>
-                                  <swe:coordinate name="altitude">
-                                    <swe:Quantity definition="altitude" axisID="Alt">
+                                </swe:Vector>
+
+                                <swe:Vector referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+                                  <swe:coordinate name="north">
+                                    <swe:Quantity definition="latitude" axisID="Lat">
+                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
+                                      <swe:value>',sensors$lat[x],'</swe:value>
+                                    </swe:Quantity>
+                                  </swe:coordinate>
+                                  <swe:coordinate name="east">
+                                    <swe:Quantity definition="longitude" axisID="Lon">
+                                      <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_4" code="deg"/>
+                                      <swe:value>',sensors$lon[x],'</swe:value>
+                                    </swe:Quantity>
+                                  </swe:coordinate>
+                                  <swe:coordinate name="up">
+                                    <swe:Quantity definition="ellipsoidal height" axisID="Alt">
                                       <swe:uom xlink:href="http://vocabs.lter-europe.net/EnvThes/EUUnits_110" code="m"/>
                                       <swe:value>',sensors$height[x],'</swe:value>
                                     </swe:Quantity>
                                   </swe:coordinate>
                                 </swe:Vector>
+
                               </sml:position>
                        
                             </sml:PhysicalSystem>
