@@ -1,4 +1,4 @@
-FROM tomcat:9
+FROM tomcat:9-alpine
 
 # This image is a modified version of the sos and sos-configured Docker image
 # definitions found at the following 52North repository:
@@ -8,10 +8,12 @@ MAINTAINER CEH <oss@ceh.ac.uk>
 
 # Install netcat, used in the tomcat-bin based script used to check the database
 #  is up and accepting connections before starting the 52North webapp.
-RUN apt-get update \
-    && apt-get install -y \
-    netcat \
-    && apt-get clean
+
+RUN apk add --update \
+    netcat-openbsd \
+    curl \
+    unzip \
+    && rm -rf /var/cache/apk/*
 
 # Set the working directory and copy all the configuration files to the image.
 WORKDIR /tmp
