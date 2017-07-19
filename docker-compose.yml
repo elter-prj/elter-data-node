@@ -3,7 +3,7 @@ version: '3'
 services:
 
   postgresql-node:
-    build: postgresql-node/SOS-4-4-0/.
+    build: postgresql-node/sos-4-4-0/.
     expose:
       - 5432
     environment:
@@ -15,7 +15,7 @@ services:
       - pg_volume:/var/lib/postgresql/data/pgdata
 
   sos-service:
-    build: sos-node/SOS-4-4-0/.
+    build: sos-node/sos-4-4-0/.
     ports:
       - 8080:8080
     links:
