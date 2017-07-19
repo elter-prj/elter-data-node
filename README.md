@@ -16,7 +16,7 @@ To build the containers execute the following in this folder:
 
 `make build`
 
-This will build the base SOS image using Docker, and the database and the versioned SOS instances using `docker-compose.yml`.  After changing the `Dockerfile` of any image, it is necessary to call `make deploy` to incorporate the changes.
+This will build the base SOS image using Docker, and the database and the versioned SOS instances using `docker-compose.yml`.  After changing the `Dockerfile` of any image, or any of the files copied to the images, it is necessary to call `make deploy` to incorporate the changes.
 
 Once built, running containers can be created by using:
 
