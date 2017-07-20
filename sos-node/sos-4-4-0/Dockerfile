@@ -8,10 +8,10 @@ RUN curl -L -o sos-bundle.zip https://github.com/52North/sos/releases/download/v
 
 RUN unzip -d sos-bundle sos-bundle.zip \
     && unzip -d sos-webapp sos-bundle/*/bin/target/*.war \
-    && cp -R /tmp/tomcat-conf/* $CATALINA_HOME/conf/ \
-    && cp -R /tmp/rest-api-config/* sos-webapp/WEB-INF/ \
+    && cp -R tomcat-conf/* $CATALINA_HOME/conf/ \
     && cp -R sos-webapp/ $CATALINA_HOME/webapps/observations \
-    && cp -R /tmp/sos-config/configuration.db $CATALINA_HOME/webapps/observations/ \
-    && cp -R /tmp/sos-config/datasource.properties $CATALINA_HOME/webapps/observations/WEB-INF \
-    && cp -R /tmp/sos-config/helg-settings.json $CATALINA_HOME/webapps/observations/static/client/helgoland/settings.json \
+    && cp -R sos-config/configuration.db $CATALINA_HOME/webapps/observations/ \
+    && cp -R sos-config/datasource.properties $CATALINA_HOME/webapps/observations/WEB-INF \
+    && cp -R sos-config/helg-settings.json $CATALINA_HOME/webapps/observations/static/client/helgoland/settings.json \
+    && cp -R rest-api-config/* $CATALINA_HOME/webapps/observations/WEB-INF/ \
     && rm -rf /tmp/*

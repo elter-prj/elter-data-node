@@ -17,10 +17,10 @@ RUN apk add --update \
 
 # Set the working directory and copy all the configuration files to the image.
 WORKDIR /tmp
-COPY rest-api-config/* rest-api-config/
-COPY tomcat-conf/* tomcat-conf/
-COPY sos-config/* sos-config/
-COPY tomcat-bin/* tomcat-bin/
+COPY rest-api-config/ rest-api-config/
+COPY tomcat-conf/ tomcat-conf/
+COPY sos-config/ sos-config/
+COPY tomcat-bin/ tomcat-bin/
 
 # Copy the database connection checking script and set its permissions.
 COPY tomcat-bin/* $CATALINA_HOME/bin
