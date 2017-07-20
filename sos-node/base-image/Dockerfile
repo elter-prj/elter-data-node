@@ -25,3 +25,7 @@ COPY tomcat-bin/* tomcat-bin/
 # Copy the database connection checking script and set its permissions.
 COPY tomcat-bin/* $CATALINA_HOME/bin
 RUN chmod +x $CATALINA_HOME/bin/*.sh
+
+# Remove some of the WAR files
+RUN rm -r $CATALINA_HOME/webapps/docs
+RUN rm -r $CATALINA_HOME/webapps/examples
