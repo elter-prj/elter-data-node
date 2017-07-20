@@ -14,4 +14,5 @@ RUN unzip -d sos-bundle sos-bundle.zip \
     && cp -R /tmp/sos-config/configuration.db $CATALINA_HOME/webapps/observations/ \
     && cp -R /tmp/sos-config/datasource.properties $CATALINA_HOME/webapps/observations/WEB-INF \
     && cp -R /tmp/sos-config/helg-settings.json $CATALINA_HOME/webapps/observations/static/client/helgoland/settings.json \
+    && cp -R /tmp/sos-config/settings.json $CATALINA_HOME/webapps/observations/static/client/jsClient/settings.json \
     && rm -rf /tmp/*
