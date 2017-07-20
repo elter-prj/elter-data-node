@@ -1,0 +1,5 @@
+---
+  - include: folder-setup.yml
+  - include: copy-files.yml
+  - include: build-containers.yml
+  - include: deploy-containers.yml

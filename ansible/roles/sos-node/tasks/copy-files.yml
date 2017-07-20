@@ -1,0 +1,36 @@
+---
+  - name: Move the directory for building the docker image to the host
+    synchronize:
+      src: ../../elter-data-node
+      dest: /opt/
+
+  - name: Move the populated database file to the remote machine for building
+    synchronize:
+      src: ../../populated-databases/ecn-cordex-sos-v{{sos_version}}.sql.gz
+      dest: /opt/elter-data-node/postgresql-node/sos-{{sos_version}}/sos.sql.gz
+
+  - name: Push the old api helg settings file to the remote machine
+    template:
+      src: helg-settings-old-api.json.j2
+      dest: /opt/elter-data-node/sos-node/base-image/sos-config/helg-settings.json
+      owner: root
+      group: docker
+      mode: 550
+    when: sos_version == "4-3-15"
+
+  - name: Push the new api helg settings file to the remote machine
+    template:
+      src: helg-settings.json.j2
+      dest: /opt/elter-data-node/sos-node/base-image/sos-config/helg-settings.json
+      owner: root
+      group: docker
+      mode: 550
+    when: sos_version == "4-4-0"
+
+  - name: Push the old client settings file to the remote machine
+    template:
+      src: settings.json.j2
+      dest: /opt/elter-data-node/sos-node/base-image/sos-config/settings.json
+      owner: root
+      group: docker
+      mode: 550

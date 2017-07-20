@@ -1,0 +1,9 @@
+---
+- hosts: sos-4-3-hosts
+  remote_user: root
+  roles:
+    - jasmin-node
+    - sos-node
+  vars:
+    docker_compose_version: 1.14.0
+    sos_version: 4-3-15

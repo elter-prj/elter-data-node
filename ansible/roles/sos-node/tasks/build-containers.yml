@@ -1,0 +1,36 @@
+---
+  - name: Stop and remove existing docker containers
+    docker_container:
+      name: "{{ item }}"
+      state: absent
+      keep_volumes: false
+    with_items:
+      - sos
+      - postgres
+
+  - name: Remove the PG settings folder mounted on the data disk
+    file:
+      path: /mnt/data_disk/pg/
+      state: absent
+
+  - name: Build the docker sos base image for the sos node
+    docker_image:
+      path: /opt/elter-data-node/sos-node/base-image
+      name: ceh-sos:1.0.0
+      state: present
+      force: true
+
+  - name: Build the docker image for the pg node
+    docker_image:
+      path: /opt/elter-data-node/postgresql-node/sos-{{sos_version}}
+      name: pg-image
+      state: present
+      force: true
+
+  - name: Build the docker image for the sos node
+    docker_image:
+      path: /opt/elter-data-node/sos-node/sos-{{sos_version}}
+      name: sos-image
+      state: present
+      force: true
+      pull: no

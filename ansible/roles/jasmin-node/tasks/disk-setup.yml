@@ -1,0 +1,35 @@
+---
+  - name: Create the primary partition on the data disk
+    parted:
+      device: /dev/sdb
+      number: 1
+      state: present
+
+  - name: Install the XFS filesystem packages necessary to format the data disk
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: present
+    with_items:
+      - xfsprogs
+      - xfsdump
+
+  - name: Create the XFS filesystem on the data disk
+    filesystem:
+      fstype: xfs
+      dev: /dev/sdb1
+
+  - name: Create the data disk mount point
+    file:
+      path: /mnt/data_disk
+      state: directory
+      owner: root
+      mode: 0770
+
+  - name: Mount the XFS filesystem to the created mount directory
+    mount:
+      path: /mnt/data_disk
+      src: /dev/sdb1
+      fstype: xfs
+      opts: defaults,noatime
+      state: mounted

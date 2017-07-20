@@ -1,0 +1,34 @@
+---
+
+  - name: Provision the pg container
+    docker_container:
+      name: postgres
+      image: pg-image
+      volumes: /mnt/data_disk/pg:/var/lib/postgresql/data/pgdata:rw
+      keep_volumes: false
+      restart_policy: unless-stopped
+      exposed_ports:
+        - 5432
+      log_driver: json-file
+      log_options:
+        max-size: 10m
+      env:
+        PGDATA: /var/lib/postgresql/data/pgdata
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        CUSTOM_CONFIG: /etc/postgresql.conf
+        POSTGRES_DB: sos
+
+  - name: Provision the sos container
+    docker_container:
+      name: sos
+      image: sos-image
+      restart_policy: unless-stopped
+      links:
+        - postgres:postgresql-node
+      ports:
+        - 8080:8080
+        - 80:8080
+      log_driver: json-file
+      log_options:
+        max-size: 10m
