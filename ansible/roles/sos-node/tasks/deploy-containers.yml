@@ -14,8 +14,8 @@
         max-size: 10m
       env:
         PGDATA: /var/lib/postgresql/data/pgdata
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: "{{postgres_user}}"
+        POSTGRES_PASSWORD: "{{postgres_password}}"
         CUSTOM_CONFIG: /etc/postgresql.conf
         POSTGRES_DB: sos
 

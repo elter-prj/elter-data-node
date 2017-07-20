@@ -9,6 +9,14 @@
       src: ../../populated-databases/ecn-cordex-sos-v{{sos_version}}.sql.gz
       dest: /opt/elter-data-node/postgresql-node/sos-{{sos_version}}/sos.sql.gz
 
+  - name: Push the datasource properties file to the remote machine with the specified credentials
+    template:
+      src: datasource.properties.j2
+      dest: /opt/elter-data-node/sos-node/base-image/sos-config/datasource.properties
+      owner: root
+      group: docker
+      mode: 550
+
   - name: Push the old api helg settings file to the remote machine
     template:
       src: helg-settings-old-api.json.j2
