@@ -243,8 +243,9 @@ def save_observations(curr_obs, result_template, endpoint, chunk_size):
         #  are attempted to be sent again but this time in chunks of 1, so only the duplicate observations are missed
         else:
             logging.info('Failed batch insert of between: {} and {}.'.format(start_offset, start_offset + chunk_size))
-            # Send as results of size 1, so that any non-duplicates are added OK
-            save_observations(curr_results, result_template, endpoint, 1)
+            # Send as results of size 1, so that any non-duplicates are added OK - only if this hasn't already been done
+            if chunk_size > 1:
+                save_observations(curr_results, result_template, endpoint, 1)
 
 
 def send_request(data, target_key, key_status, endpoint):
