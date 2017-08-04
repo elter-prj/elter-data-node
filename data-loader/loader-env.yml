@@ -1,0 +1,8 @@
+# conda env create -f loader-env.yml
+name: loader-env
+
+channels:
+  - defaults
+dependencies:
+  - python=3.6
+  - pandas
