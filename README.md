@@ -2,7 +2,13 @@
 
 This repository holds the Docker image definition files, and the configuration and deployment files to provision the eLTER central data node.
 
-# Deployment
+Ansible is used for deployment orchestration on server infrastructure, Make for local deployment orchestration, and Docker containers are used for the individual, repeatable deployment of the differing components.
+
+The databases included in this repository are empty databases, made by a 4.3.x SOS installation.  The 4.4.0 postgresql-node folder contains modification scripts that transform the 4.3.x database to a 4.4.0 database.  If a native 4.4.0 database is being deployed, remove the commands from the postgresql-node Dockerfile copying the modification scripts.
+
+By default version 4.4.0 is deployed, to deploy 4.3.x, you need to change both the SOS folder and PostgreSQL folder links in the docker-compose.yml file.
+
+# Local Deployment
 
 Within this directory there is a `Makefile` that is used to control the building, deploying, and stopping of the SOS system.
 
@@ -10,19 +16,21 @@ Running on an Ubuntu host, it is necessary to have Docker and make installed.  T
 
 `sudo apt-get install make`
 
-# Build, Deploy, Stop
+The Makefile uses the `docker-compose.yml` file for local deployment, use this to make any deployment changes such as the database user, password or database name.
+
+## Build, Deploy, Stop
 
 To build the containers execute the following in this folder:
 
 `make build`
 
-This will build the base SOS image using Docker, and the database and the versioned SOS instances using `docker-compose.yml`.  After changing the `Dockerfile` of any image, or any of the files copied to the images, it is necessary to call `make deploy` to incorporate the changes.
+This will build the base SOS and PostgreSQL images using Docker, and the database and the versioned SOS instances using `docker-compose.yml`.  After changing the `Dockerfile` of any image, or any of the files copied to the images, it is necessary to call `make deploy` to incorporate the changes.
 
 Once built, running containers can be created by using:
 
 `make deploy`
 
-The SOS app will be available on the localhost, attached to the port defined in the `docker-compose.yml` file using the `host-port:container-port` mapping.  Currently this is port 8080.
+The SOS app will be available on the localhost, attached to the port defined in the `docker-compose.yml` file using the `host-port:container-port` mapping.  Currently this is port 80.
 
 To stop the containers, use:
 
@@ -36,7 +44,7 @@ This will stop, but not remove the data held in the database.  If you want to co
 
 The 52North SOS deployment consists of a Tomcat based container for the web application, and a Postgis based container for the database.  These containers and the Docker Compose file were modified from the [52North repository for ConnectinGEO](https://github.com/52North/ConnectinGEO).
 
-Currently there is the option to build a 4.3.15 SOS container, or a 4.4.0 SOS container.  The database structure between these releases is different, and so they require different empty or provisioned databases.  
+Currently there is the option to build a 4.3.15 SOS container, or a 4.4.0 SOS container.  The database structure between these releases is different, and so they require different empty or provisioned databases.
 
 ### Preconfigured SOS Deployment
 
@@ -101,7 +109,3 @@ While the settings have been preconfigured, it is likely still necessary for the
 * Admin Menu -> Settings Page -> Transaction Security Tab: Is security active, do you filter IP's, do you use the security token.
 * Admin Menu -> Settings Page -> Service Tab: Does the SOS URL need updating?
 * Admin Menu -> Settings -> Operations Page: Select the operations allowable on the SOS node.
-
-# Data Handling
-
-The contents of the data handling directory are used to populate the 52N SOS server.
