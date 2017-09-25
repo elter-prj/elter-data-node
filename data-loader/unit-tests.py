@@ -99,7 +99,7 @@ class TestIdentifyTemplate(unittest.TestCase):
         template_id = ObLo.identify_template('test-property', 'test-offering', 'test-endpoint')
 
         # Check that the parsing of the SOS return value is correct
-        self.assertTrue(template_id is None)
+        self.assertTrue(template_id is False)
 
 
 class TestTemplateCreation(unittest.TestCase):
@@ -294,6 +294,35 @@ class TestObservationParse(unittest.TestCase):
         with self.assertRaises(ValueError):
             ObLo.check_observation_parse(self.bad_columns_two)
 
+
+# class TestObservationSaving(unittest.TestCase):
+#     def setUp(self):
+#         # Create the mock entries for the urlopen function
+#         # Mock stream object
+#         self.mock_url_stream = MagicMock(name='mock-stream')
+#         # Mock stream while-enter object
+#         self.mock_url_stream_open = MagicMock(name='url_mock')
+#         self.mock_url_stream.__enter__.return_value = self.mock_url_stream_open
+#         # Mock the info object
+#         self.mock_url_info = MagicMock(name='url_info')
+#         self.mock_url_info.get_content_charset.return_value = 'utf-8'
+#         self.mock_url_stream_open.info.return_value = self.mock_url_info
+#
+#         # Create the patched urllib calls
+#         patch_urllib_request = patch('urllib.request.Request')
+#         patch_urllib_urlopen = patch('urllib.request.urlopen')
+#
+#         # Start the patches and create the return value pointers to above mocks
+#         self.mock_request = patch_urllib_request.start()
+#         self.mock_open = patch_urllib_urlopen.start()
+#         self.mock_open.return_value = self.mock_url_stream
+#
+#         self.addCleanup(patch_urllib_request.stop)
+#         self.addCleanup(patch_urllib_urlopen.stop)
+#
+#     def test_observation_send(self):
+#
+#
 
 if __name__ == '__main__':
     unittest.main()

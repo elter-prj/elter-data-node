@@ -7,6 +7,7 @@ from urllib.error import HTTPError
 import pandas as pd
 
 
+# Define the meaning of the different result values
 @unique
 class ResultTypes(Enum):
     OBSERVATIONS_OK = 0
@@ -23,6 +24,11 @@ def prepare_observations(observations, procedure, obs_property, offering, templa
     removes duplicate entries within the provided observations file, and doesn't provide feedback when
     individual observations cannot be uploaded due to an already saved observation being within the server.
 
+    Note:
+        Templates are assumed to be of the format: "ObservedPropertyValue-OfferingValue".  If they are not of this
+        format the script needs updating, it is required that they be standardized in some way, using the parameters
+        provided to this script.
+
     observations -- CSV file containing two columns in the following order: (datetime, value), where datetime is in
         the format %Y-%m-%dT%H:%M:%S, and value is numeric.
     procedure -- The procedure URI
@@ -38,13 +44,14 @@ def prepare_observations(observations, procedure, obs_property, offering, templa
         template_id = identify_template(obs_property, offering, endpoint)
 
         # If the template does not exist, attempt to create one
-        if template_id is None:
+        if template_id is False:
             logging.info("Creating template.")
             template_id = create_template(procedure, obs_property, offering, template_metadata, endpoint)
 
-        # Load the observations from the file, then remove any duplicates
+        # Load the observations from the file, then remove any duplicates.  The first row should be the header.
         curr_obs = pd.read_csv(observations,
                                header=0)
+
         logging.info("Drop duplicates from observations.")
         curr_obs.drop_duplicates('datetime', keep='last', inplace=True)
 
@@ -61,66 +68,57 @@ def prepare_observations(observations, procedure, obs_property, offering, templa
         return ResultTypes.TEMPLATE_FAILURE
 
     except ValueError:
-        logging.error('The observation CSV column names were not correct, or two many columns.')
+        logging.error('The observation CSV column names were not correct, or too many columns, or wrong data type.')
         return ResultTypes.PARSE_FAILURE
 
 
 def identify_template(obs_property, offering, endpoint):
     """Use the offering and obs_property parameters to identify whether a result template already
-    exists for this observation stream.  If it does, return its identifier, if not, return none.
+    exists for this observation stream.  If it does, return its identifier, if not, return False.
 
-    This assumes that a template has a single observed property, and that the columns
-    have been registered as: (phenomenonTime, observation), so that the observation in
-    the 'resultStructure' is the second entry.
+    Arguments:
+        obs_property: The property being observed
+        offering:  The offering under which the observations have been entered
+        endpoint:  The URI of the SOS service that listens for requests
 
-    obs_property -- The property being observed
-    offering -- The offering under which the observations have been entered
-    endpoint -- The URI of the SOS service that listens for requests
+    Note:
+        This assumes that a template has a single observed property, and that the columns
+        have been registered as: (phenomenonTime, observation), so that the observation in
+        the 'resultStructure' is the second entry.
+
+    Returns:
+        Either the result template string identifier, or False to indicate not found
     """
 
-    # Create the custom header for the JSON content, create and encode the JSON payload
-    custom_header = {'Content-Type': 'application/json'}
-    data = json.dumps({'request': 'GetResultTemplate',
+    data = {'request': 'GetResultTemplate',
                        'service': 'SOS',
                        'version': '2.0.0',
                        'offering': offering,
-                       'observedProperty': obs_property}).encode('utf-8')
+                       'observedProperty': obs_property}
 
-    # Create the request
-    req = urllib.request.Request(url=endpoint, data=data, headers=custom_header, method='POST')
-
-    # Open the request,
-    try:
-        with urllib.request.urlopen(req) as url_stream:
-            # Retrieve the encoding and use to decode the result
-            result_encoding = url_stream.info().get_content_charset('utf-8')
-            result_json = json.loads(url_stream.read().decode(result_encoding))
-            # If the top set of keys in the results contain 'exceptions' then the template does not exist, if it
-            # does not then the template exists and the ID can be returned - assuming it is the second column.
-            if "exceptions" not in result_json:
-                return obs_property + "-" + offering
-            else:
-                return None
-    except HTTPError as e:
-        result_json = json.loads(e.read().decode('utf-8'))
-        # If the top set of keys in the results contain 'exceptions' then the template does not exist, if it does not
-        #  then the template exists and the ID can be returned - assuming it is the second column.
-        if "exceptions" not in result_json:
-            return obs_property + "-" + offering
-        else:
-            return None
+    if send_request(data, 'exceptions', False, endpoint):
+        return obs_property + "-" + offering
+    else:
+        return False
 
 
 def create_template(procedure, obs_property, offering, template_metadata, endpoint):
     """If a template does not already exist within the SOS server, there is an attempt to create it
     in this function.  The template is encoded, sent, and if successful its ID value is returned,
-    else None is returned.
+    else an error is raised, as without a template this script cannot work.
 
-    procedure -- The procedure URI
-    obs_property -- The property being observed
-    offering -- The offering the procedure and property are under
-    template_metadata -- A set of values necessary for registering an observation template (and an observation)
-    endpoint -- The URI of the SOS service that listens for requests
+    Arguments:
+        procedure:  The procedure URI
+        obs_property:  The property being observed
+        offering:  The offering the procedure and property are under
+        template_metadata:  A set of values necessary for registering an observation template (and an observation)
+        endpoint:  The URI of the SOS service that listens for requests
+
+    Raises:
+        NotImplementedError:  If a template cannot be created/implemented, then this error is raised to indicate it.
+
+    Returns:
+        The result template string identifier
     """
 
     # Create a unique template ID - as observations can only be added through the interface, this naming convention
@@ -191,7 +189,6 @@ def create_template(procedure, obs_property, offering, template_metadata, endpoi
         }
     }
 
-    # Send the request
     if send_request(template, 'acceptedTemplate', True, endpoint):
         return template_id
     else:
@@ -202,31 +199,40 @@ def check_observation_parse(curr_obs):
     """Checks that the datetime values are OK and in the correct format, and check that all the
     observations are either numeric or null.
 
-    curr_obs -- A pandas dataframe holding the observation data
+    Arguments:
+        curr_obs:  A pandas dataframe holding the observation data
+
+    Raises:
+        ValueError:  If a value within the file does not conform to the expected types, a ValueError is raised
     """
-    numeric_observations = pd.to_numeric(curr_obs['value'], errors='raise')
-    time_observations = pd.to_datetime(curr_obs['datetime'],
-                                       errors='raise',
-                                       format='%Y-%m-%dT%H:%M:%S',
-                                       exact=True)
-    if set(curr_obs.columns) != {'datetime', 'value'}:
-        raise ValueError('The observation column names have the incorrect values, or number of columns is wrong')
+    try:
+        numeric_observations = pd.to_numeric(curr_obs['value'], errors='raise')
+        time_observations = pd.to_datetime(curr_obs['datetime'],
+                                           errors='raise',
+                                           format='%Y-%m-%dT%H:%M:%S',
+                                           exact=True)
+        if set(curr_obs.columns) != {'datetime', 'value'}:
+            raise ValueError('The observation file has the wrong number of columns.')
+    except:
+        raise ValueError('Values within the observation file do not conform to their expected type.')
 
 
 def save_observations(curr_obs, result_template, endpoint, chunk_size):
     """Takes the observations parameter and opens the CSV file it represents, then inserts
     these observations against the endpoint.
 
-    curr_obs -- A Pandas DataFrame of the current set of observations to be saved
-    result_template -- The template ID value to insert the observations against
-    endpoint -- The endpoint URI to send requests to
-    chunk_size -- The number of observations to be inserted in the same request
+    Arguments:
+        curr_obs:  A Pandas DataFrame of the current set of observations to be saved
+        result_template:  The template ID value to insert the observations against
+        endpoint:  The endpoint URI to send requests to
+        chunk_size:  The number of observations to be inserted in the same request
+
     """
 
     # Create an iterator over the observations by chunk_size
     for start_offset in range(0, curr_obs.shape[0], chunk_size):
         # Retrieve the subset of observations to put into the template, format as expected, and create template
-        curr_results = curr_obs.loc[start_offset:start_offset + chunk_size]
+        curr_results = curr_obs.loc[start_offset:start_offset + chunk_size, :]
         result_string = '#'.join([str(curr_ob[0]) + "," + str(curr_ob[1]) for curr_ob in curr_results.values])
 
         curr_template = {"request": "InsertResult",
@@ -251,10 +257,15 @@ def save_observations(curr_obs, result_template, endpoint, chunk_size):
 def send_request(data, target_key, key_status, endpoint):
     """Send the request to the sos endpoint, and check for the key_status of the key
 
-    req -- urllib.request.Request object with the url, data, headers, and method pre-defined
-    target_key -- the key to check for within the server JSON response
-    key_status -- whether the key is needed to return success, or if the key should not be present for success
-    endpoint -- the location of the sos server
+    Arguments:
+        data: an object able to be serialized into a JSON object
+        target_key: the json key to look for in the return object
+        key_status: whether the target_key needs to be present (True), or not (False) for this method to return True
+        endpoint: the URI of the SOS server to send the request to
+
+    Returns:
+        Boolean value to indicate whether the target_key corresponded to the key_status when analyzing the return from
+        the server.
     """
 
     # Create the custom header for the JSON content, create and encode the JSON payload
@@ -264,16 +275,19 @@ def send_request(data, target_key, key_status, endpoint):
     # Create the request
     req = urllib.request.Request(url=endpoint, data=data, headers=custom_header, method='POST')
 
-    # Open the request,
-    with urllib.request.urlopen(req) as url_stream:
-        # Retrieve the encoding and use to decode the result
-        result_encoding = url_stream.info().get_content_charset('utf-8')
-        result_json = json.loads(url_stream.read().decode(result_encoding))
+    try:
+        # Open the request,
+        with urllib.request.urlopen(req) as url_stream:
+            # Retrieve the encoding and use to decode the result
+            result_encoding = url_stream.info().get_content_charset('utf-8')
+            result_json = json.loads(url_stream.read().decode(result_encoding))
 
-        if (target_key in result_json) is key_status:
-            return True
-        else:
-            return False
+            if (target_key in result_json) is key_status:
+                return True
+            else:
+                return False
+    except HTTPError:
+        return False
 
 
 if __name__ == '__main__':
