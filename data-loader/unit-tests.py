@@ -8,7 +8,6 @@ import pandas as pd
 import ObservationLoader as ObLo
 
 
-
 class TestIdentifyTemplate(unittest.TestCase):
     def setUp(self):
         # Create the mock entries for the urlopen function
@@ -233,7 +232,7 @@ class TestObservationParse(unittest.TestCase):
     def setUp(self):
 
         self.ok_data = pd.DataFrame([
-            {'datetime': '2015-01-01T00:00:00','value': 22},
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
             {'datetime': '2015-01-01T00:01:00', 'value': 23},
             {'datetime': '2015-01-01T00:02:00', 'value': 24},
             {'datetime': '2015-01-01T00:03:00', 'value': 25},
@@ -242,7 +241,7 @@ class TestObservationParse(unittest.TestCase):
         ])
 
         self.bad_date = pd.DataFrame([
-            {'datetime': '2015-01-01T00:00:00','value': 22},
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
             {'datetime': '2015-01-01T00:01:00', 'value': 23},
             {'datetime': '01-01-2015T00:02:00', 'value': 24},
             {'datetime': '2015-01-01T00:03:00', 'value': 25},
@@ -251,7 +250,7 @@ class TestObservationParse(unittest.TestCase):
         ])
 
         self.bad_value = pd.DataFrame([
-            {'datetime': '2015-01-01T00:00:00','value': 22},
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
             {'datetime': '2015-01-01T00:01:00', 'value': 23},
             {'datetime': '01-01-2015T00:02:00', 'value': "bad value"},
             {'datetime': '2015-01-01T00:03:00', 'value': 25},
@@ -260,7 +259,7 @@ class TestObservationParse(unittest.TestCase):
         ])
 
         self.bad_columns_one = pd.DataFrame([
-            {'datetimed': '2015-01-01T00:00:00','value': 22},
+            {'datetimed': '2015-01-01T00:00:00', 'value': 22},
             {'datetime': '2015-01-01T00:01:00', 'value': 23},
             {'datetime': '01-01-2015T00:02:00', 'value': 24},
             {'datetime': '2015-01-01T00:03:00', 'value': 25},
@@ -269,7 +268,7 @@ class TestObservationParse(unittest.TestCase):
         ])
 
         self.bad_columns_two = pd.DataFrame([
-            {'datetime': '2015-01-01T00:00:00','value': 22, 'extra': 'test'},
+            {'datetime': '2015-01-01T00:00:00', 'value': 22, 'extra': 'test'},
             {'datetime': '2015-01-01T00:01:00', 'value': 23, 'extra': 'test'},
             {'datetime': '01-01-2015T00:02:00', 'value': 24, 'extra': 'test'},
             {'datetime': '2015-01-01T00:03:00', 'value': 25, 'extra': 'test'},
@@ -295,34 +294,124 @@ class TestObservationParse(unittest.TestCase):
             ObLo.check_observation_parse(self.bad_columns_two)
 
 
-# class TestObservationSaving(unittest.TestCase):
-#     def setUp(self):
-#         # Create the mock entries for the urlopen function
-#         # Mock stream object
-#         self.mock_url_stream = MagicMock(name='mock-stream')
-#         # Mock stream while-enter object
-#         self.mock_url_stream_open = MagicMock(name='url_mock')
-#         self.mock_url_stream.__enter__.return_value = self.mock_url_stream_open
-#         # Mock the info object
-#         self.mock_url_info = MagicMock(name='url_info')
-#         self.mock_url_info.get_content_charset.return_value = 'utf-8'
-#         self.mock_url_stream_open.info.return_value = self.mock_url_info
-#
-#         # Create the patched urllib calls
-#         patch_urllib_request = patch('urllib.request.Request')
-#         patch_urllib_urlopen = patch('urllib.request.urlopen')
-#
-#         # Start the patches and create the return value pointers to above mocks
-#         self.mock_request = patch_urllib_request.start()
-#         self.mock_open = patch_urllib_urlopen.start()
-#         self.mock_open.return_value = self.mock_url_stream
-#
-#         self.addCleanup(patch_urllib_request.stop)
-#         self.addCleanup(patch_urllib_urlopen.stop)
-#
-#     def test_observation_send(self):
-#
-#
+class TestObservationSaving(unittest.TestCase):
+    def setUp(self):
+        # Create the mock entries for the urlopen function
+        # Mock stream object
+        self.mock_url_stream = MagicMock(name='mock-stream')
+        # Mock stream while-enter object
+        self.mock_url_stream_open = MagicMock(name='url_mock')
+        self.mock_url_stream.__enter__.return_value = self.mock_url_stream_open
+        # Mock the info object
+        self.mock_url_info = MagicMock(name='url_info')
+        self.mock_url_info.get_content_charset.return_value = 'utf-8'
+        self.mock_url_stream_open.info.return_value = self.mock_url_info
+
+        # Create the patched urllib calls
+        patch_urllib_request = patch('urllib.request.Request')
+        patch_urllib_urlopen = patch('urllib.request.urlopen')
+
+        # Start the patches and create the return value pointers to above mocks
+        self.mock_request = patch_urllib_request.start()
+        self.mock_open = patch_urllib_urlopen.start()
+        self.mock_open.return_value = self.mock_url_stream
+
+        self.addCleanup(patch_urllib_request.stop)
+        self.addCleanup(patch_urllib_urlopen.stop)
+
+    def test_observation_send(self):
+        # Mock the read object
+        self.mock_url_stream_open.read.return_value = json.dumps(
+            {
+                "request": "InsertResult",
+                "version": "2.0.0",
+                "service": "SOS"
+            }
+        ).encode('utf-8')
+
+        # Create the expected dictionary of the call to be made to the server
+        self.insert_command = {
+            "request": "InsertResult",
+            "service": "SOS",
+            "version": "2.0.0",
+            "templateIdentifier": "http://test.template",
+            "resultValues": "2017-09-27T09:00:00,22.2#2017-09-27T09:04:00,22.9#2017-09-27T09:08:00,23.5"
+        }
+
+        # Create the test set of observations
+        test_dataset = pd.DataFrame([
+            ["2017-09-27T09:00:00", 22.2],
+            ["2017-09-27T09:04:00", 22.9],
+            ["2017-09-27T09:08:00", 23.5]
+        ])
+        test_dataset.columns = ['datetime', 'value']
+
+        # Send the observations to be saved
+        ObLo.save_observations(test_dataset, "http://test.template", "127.0.0.1:8080/observations/service", 100)
+
+        # Test that there was only a single call
+        self.assertTrue(self.mock_request.call_count == 1)
+
+        # Take the call and check the sent value are correct
+        kall = self.mock_request.call_args
+        args, kwargs = kall
+        call_dict = json.loads(kwargs['data'].decode('utf-8'))
+
+        self.assertTrue(call_dict['request'] == self.insert_command['request'])
+        self.assertTrue(call_dict['service'] == self.insert_command['service'])
+        self.assertTrue(call_dict['version'] == self.insert_command['version'])
+        self.assertTrue(call_dict['templateIdentifier'] == self.insert_command['templateIdentifier'])
+        self.assertTrue(call_dict['resultValues'] == self.insert_command['resultValues'])
+
+        # Reset, and set side effects so that first call fails, and then three inserts are made, check all values.
+        self.mock_request.reset_mock()
+        self.mock_url_stream_open.reset_mock()
+        bad_result = json.dumps(
+            {
+                "exceptions": "ManyOfThem",
+                "request": "InsertResult",
+                "version": "2.0.0",
+                "service": "SOS"
+            }
+        ).encode('utf-8')
+
+        ok_result = json.dumps(
+            {
+                "request": "InsertResult",
+                "version": "2.0.0",
+                "service": "SOS"
+            }
+        ).encode('utf-8')
+
+        # Set the side effects of the mock url stream, so that the first insert fails, and the rest are OK.
+        self.mock_url_stream_open.read.side_effect = [bad_result, ok_result, ok_result, ok_result, ok_result]
+        ObLo.save_observations(test_dataset, "http://test.template", "127.0.0.1:8080/observations/service", 100)
+
+        # Check for four calls, one that failed, and the three individual calls for the three observations
+        self.assertTrue(self.mock_request.call_count == 4)
+
+        # Check all the call args are correct for the first individual observation, then check the value of the second
+        #  and third are correct.
+        kall = self.mock_request.call_args_list[1]
+        args, kwargs = kall
+        call_dict = json.loads(kwargs['data'].decode('utf-8'))
+
+        self.assertTrue(call_dict['request'] == self.insert_command['request'])
+        self.assertTrue(call_dict['service'] == self.insert_command['service'])
+        self.assertTrue(call_dict['version'] == self.insert_command['version'])
+        self.assertTrue(call_dict['templateIdentifier'] == self.insert_command['templateIdentifier'])
+        self.assertTrue(call_dict['resultValues'] == "2017-09-27T09:00:00,22.2")
+
+        kall = self.mock_request.call_args_list[2]
+        args, kwargs = kall
+        call_dict = json.loads(kwargs['data'].decode('utf-8'))
+        self.assertTrue(call_dict['resultValues'] == "2017-09-27T09:04:00,22.9")
+
+        kall = self.mock_request.call_args_list[3]
+        args, kwargs = kall
+        call_dict = json.loads(kwargs['data'].decode('utf-8'))
+        self.assertTrue(call_dict['resultValues'] == "2017-09-27T09:08:00,23.5")
+
 
 if __name__ == '__main__':
     unittest.main()
