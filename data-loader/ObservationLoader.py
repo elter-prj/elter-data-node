@@ -232,7 +232,8 @@ def save_observations(curr_obs, result_template, endpoint, chunk_size):
     # Create an iterator over the observations by chunk_size
     for start_offset in range(0, curr_obs.shape[0], chunk_size):
         # Retrieve the subset of observations to put into the template, format as expected, and create template
-        curr_results = curr_obs.loc[start_offset:start_offset + chunk_size, :]
+        # Use -1 for the chunk size as difference in how list slicing and .loc slicing work with the rhs value
+        curr_results = curr_obs.loc[start_offset:start_offset + (chunk_size-1), :]
         result_string = '#'.join([str(curr_ob[0]) + "," + str(curr_ob[1]) for curr_ob in curr_results.values])
 
         curr_template = {"request": "InsertResult",
@@ -281,7 +282,6 @@ def send_request(data, target_key, key_status, endpoint):
             # Retrieve the encoding and use to decode the result
             result_encoding = url_stream.info().get_content_charset('utf-8')
             result_json = json.loads(url_stream.read().decode(result_encoding))
-
             if (target_key in result_json) is key_status:
                 return True
             else:
