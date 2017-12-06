@@ -4,9 +4,9 @@ This repository holds the Docker image definition files, and the configuration a
 
 Ansible is used for deployment orchestration on server infrastructure, Make for local deployment orchestration, and Docker containers are used for the individual, repeatable deployment of the differing components.
 
-The databases included in this repository are empty databases, made by a 4.3.x SOS installation.  The 4.4.0 postgresql-node folder contains modification scripts that transform the 4.3.x database to a 4.4.0 database.  If a native 4.4.0 database is being deployed, remove the commands from the postgresql-node Dockerfile copying the modification scripts.
+The databases included in this repository are empty databases, made by a 4.3.x SOS installation.  The 4.4.0 postgresql-node folder contains modification scripts that transform the 4.3.x database to a 4.4.0 database.  If a native 4.4.0 database is being deployed, remove the commands from the postgresql-node Dockerfile copying the modification scripts.  The 4.4.1 database was created natively from that 4.4.1 app.
 
-By default version 4.4.0 is deployed, to deploy 4.3.x, you need to change both the SOS folder and PostgreSQL folder links in the docker-compose.yml file.
+To change the local versions deployed, you need to change both the SOS folder and PostgreSQL folder links in the docker-compose.yml file.  For Ansible, pick the suitable playbook.
 
 # Local Deployment
 
@@ -86,7 +86,7 @@ For this project the only change has been to serviceDescription or name element,
 
 The database for each of the SOS releases is specific to the given release.  While the install forms of the SOS application allow for the upgrading of 4.3.x databases to 4.4.x specification, the empty database packaged here was created by the 4.4.0 application.
 
-As the database versions are different, there are two different directories, one for each of the two releases we are building with.  If in `docker-compose.yml` you decide to build `sos-node/SOS-4-4-0/.` then you should also build `postgresql-node/SOS-4-4-0/.`.  Similarly, do the same with the 4.3.15 if that's what you choose to deploy.
+As the database versions are different, there are different directories, one for each of the releases we are building with.  If in `docker-compose.yml` you decide to build `sos-node/SOS-4-4-0/.` then you should also build `postgresql-node/SOS-4-4-0/.`.  Similarly, do the same with the 4.3.15 if that's what you choose to deploy.
 
 If you wish to deploy a version of this database with data, you would have to first take a backup of a 52N SOS database that holds the observation data using, for example:
 
