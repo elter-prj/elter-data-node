@@ -10,14 +10,22 @@
 
 # Monitoring Integration VM provisioning
 [sos-4-3-hosts]
-host-ip-here
+192.171.139.65
 
 [sos-4-4-hosts]
-host-ip-here
+192.171.139.65
 
-[sos-hosts:children]
+[sos-4-4-1-hosts]
+datanode
+
+[edi-hosts]
+edi-server
+
+[all-hosts:children]
 sos-4-3-hosts
 sos-4-4-hosts
+sos-4-4-1-hosts
+edi-hosts
 
-[sos-hosts:vars]
+[all-hosts:vars]
 ansible_python_interpreter=/usr/bin/python3
