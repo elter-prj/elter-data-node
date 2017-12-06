@@ -1,0 +1,11 @@
+---
+- hosts: edi-hosts
+  remote_user: root
+  roles:
+    - docker-setup
+    - edi-node
+  vars:
+    docker_compose_version: 1.14.0
+    # Placed here, but probably there is a better way to do this
+    postgres_user: postgres
+    postgres_password: yourpassword

@@ -28,7 +28,7 @@
       owner: root
       group: docker
       mode: 550
-    when: sos_version == "4-4-0"
+    when: sos_version != "4-3-15"
 
   - name: Push the old client settings file to the remote machine
     template:

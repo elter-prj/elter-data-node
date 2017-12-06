@@ -2,11 +2,14 @@
 - hosts: sos-4-4-hosts
   remote_user: root
   roles:
-    - jasmin-node
+    - disk-setup
+    - docker-setup
     - sos-node
   vars:
     docker_compose_version: 1.14.0
     sos_version: 4-4-0
     # Placed here, but probably there is a better way to do this
-    postgres_user: postgres
-    postgres_password: postgres
+    postgres_user: pg-username-here
+    postgres_password: pg-password-here
+    min_connections: 5
+    max_connections: 7

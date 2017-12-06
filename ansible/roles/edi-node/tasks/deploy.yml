@@ -1,0 +1,45 @@
+---
+  - name: Download the repository
+    git:
+      repo: 'https://github.com/SP7-Ritmare/EDI-NG_server.git'
+      dest: /root/EDI-NG_server/
+
+  - name: Copy the EDI settings with the PostgreSQL username/password
+    template:
+      src: application.properties.j2
+      dest: /root/EDI-NG_server/dockerdemo/application.properties
+
+  - name: Provision the database container
+    docker_container:
+      name: postgres
+      image: postgres
+      keep_volumes: false
+      restart_policy: unless-stopped
+      exposed_ports:
+        - 5432
+      log_driver: json-file
+      log_options:
+        max-size: 10m
+      env:
+        PGDATA: /var/lib/postgresql/data/pgdata
+        POSTGRES_USER: "{{postgres_user}}"
+        POSTGRES_PASSWORD: "{{postgres_password}}"
+        CUSTOM_CONFIG: /etc/postgresql.conf
+        POSTGRES_DB: edi
+
+  - name: Provision the edi container
+    docker_container:
+      name: edi
+      image: java:8-jdk-alpine
+      restart_policy: unless-stopped
+      volumes:
+        - /root/EDI-NG_server/dockerdemo:/app
+      links:
+        - postgres:postgresql-node
+      ports:
+        - 80:8080
+      working_dir: /app/
+      command: /app/edi.sh
+      log_driver: json-file
+      log_options:
+        max-size: 10m

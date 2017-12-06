@@ -13,6 +13,13 @@
       path: /mnt/data_disk/pg/
       state: absent
 
+  - name: Create the directory for the postgres data
+    file:
+      path: /mnt/data_disk/pg
+      state: directory
+      owner: root
+      mode: 0770
+
   - name: Build the docker sos base image for the sos node
     docker_image:
       path: /opt/elter-data-node/sos-node/base-image

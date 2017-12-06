@@ -1,7 +1,0 @@
----
-  - name: Create the directory for the postgres data
-    file:
-      path: /mnt/data_disk/pg
-      state: directory
-      owner: root
-      mode: 0770
