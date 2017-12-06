@@ -1,4 +1,4 @@
-FROM tomcat:9-alpine
+FROM tomcat:9.0.1-alpine
 
 # This image is a modified version of the sos and sos-configured Docker image
 # definitions found at the following 52North repository:
