@@ -9,6 +9,7 @@
     docker_compose_version: 1.14.0
     sos_version: 4-4-1
     # Placed here, but probably there is a better way to do this
+    external_host_ip: 192.171.139.104
     postgres_user: pg-username-here
     postgres_password: pg-password-here
     min_connections: 5
