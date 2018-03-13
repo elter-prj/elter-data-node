@@ -276,15 +276,6 @@ class TestObservationParse(unittest.TestCase):
             {'datetime': '2015-01-01T00:05:00', 'value': 27, 'extra': 'test'}
         ])
 
-        self.duplicate_values = pd.DataFrame([
-            {'datetime': '2015-01-01T00:00:00', 'value': 22},
-            {'datetime': '2015-01-01T00:00:00', 'value': 23},
-            {'datetime': '2015-01-01T00:02:00', 'value': 24},
-            {'datetime': '2015-01-01T00:03:00', 'value': 25},
-            {'datetime': '2015-01-01T00:04:00', 'value': 26},
-            {'datetime': '2015-01-01T00:05:00', 'value': 27}
-        ])
-
     def test_observation_parse(self):
 
         # No need to check, as if the function returns with no exception then OK
