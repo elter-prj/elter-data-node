@@ -52,12 +52,12 @@ def prepare_observations(observations, procedure, obs_property, offering, templa
         curr_obs = pd.read_csv(observations,
                                header=0)
 
-        logging.info("Drop duplicates from observations.")
-        curr_obs.drop_duplicates('datetime', keep='last', inplace=True)
-
         # Check that the observations conform to the expected format
         logging.info("Check observations parse OK.")
         check_observation_parse(curr_obs)
+
+        logging.info("Drop duplicates from observations.")
+        remove_duplicate_observations(curr_obs)
 
         # Send the observations to the function that inserts them using a ResultTemplate to batch in chunks.
         logging.info("Sending observations.")
@@ -206,15 +206,30 @@ def check_observation_parse(curr_obs):
         ValueError:  If a value within the file does not conform to the expected types, a ValueError is raised
     """
     try:
-        numeric_observations = pd.to_numeric(curr_obs['value'], errors='raise')
-        time_observations = pd.to_datetime(curr_obs['datetime'],
-                                           errors='raise',
-                                           format='%Y-%m-%dT%H:%M:%S',
-                                           exact=True)
+        _ = pd.to_numeric(curr_obs['value'], errors='raise')
+        _ = pd.to_datetime(curr_obs['datetime'],
+                           errors='raise',
+                           format='%Y-%m-%dT%H:%M:%S',
+                           exact=True)
         if set(curr_obs.columns) != {'datetime', 'value'}:
-            raise ValueError('The observation file has the wrong number of columns.')
-    except:
+            raise ValueError('The observation file has the wrong column names, or wrong columns, expects: datetime, value.')
+    except Exception:
         raise ValueError('Values within the observation file do not conform to their expected type.')
+
+
+def remove_duplicate_observations(curr_obs):
+    """Removes observations that have duplicate timestamps, with the last observation of duplicates being the one that
+    is kept.  Only the timestamp is checked, not the value, as a single sensor cannot have more than one value for the
+    same sensor/property.
+
+    Arguments:
+        curr_obs:  A pandas dataframe holding the observation data
+
+    Returns:
+        A similar dataframe to that past as curr_obs, with the duplicates removed
+    """
+    curr_obs.drop_duplicates('datetime', keep='last', inplace=True)
+    return curr_obs
 
 
 def save_observations(curr_obs, result_template, endpoint, chunk_size):

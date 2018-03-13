@@ -276,6 +276,15 @@ class TestObservationParse(unittest.TestCase):
             {'datetime': '2015-01-01T00:05:00', 'value': 27, 'extra': 'test'}
         ])
 
+        self.duplicate_values = pd.DataFrame([
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
+            {'datetime': '2015-01-01T00:00:00', 'value': 23},
+            {'datetime': '2015-01-01T00:02:00', 'value': 24},
+            {'datetime': '2015-01-01T00:03:00', 'value': 25},
+            {'datetime': '2015-01-01T00:04:00', 'value': 26},
+            {'datetime': '2015-01-01T00:05:00', 'value': 27}
+        ])
+
     def test_observation_parse(self):
 
         # No need to check, as if the function returns with no exception then OK
@@ -292,6 +301,43 @@ class TestObservationParse(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             ObLo.check_observation_parse(self.bad_columns_two)
+
+
+class TestObservationDeduplication(unittest.TestCase):
+
+    def setUp(self):
+
+        self.ok_data = pd.DataFrame([
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
+            {'datetime': '2015-01-01T00:01:00', 'value': 23},
+            {'datetime': '2015-01-01T00:02:00', 'value': 24},
+            {'datetime': '2015-01-01T00:03:00', 'value': 25},
+            {'datetime': '2015-01-01T00:04:00', 'value': 26},
+            {'datetime': '2015-01-01T00:05:00', 'value': 27}
+        ])
+
+        self.duplicate_values = pd.DataFrame([
+            {'datetime': '2015-01-01T00:00:00', 'value': 22},
+            {'datetime': '2015-01-01T00:00:00', 'value': 23},
+            {'datetime': '2015-01-01T00:02:00', 'value': 24},
+            {'datetime': '2015-01-01T00:03:00', 'value': 25},
+            {'datetime': '2015-01-01T00:04:00', 'value': 26},
+            {'datetime': '2015-01-01T00:04:00', 'value': 27},
+            {'datetime': '2015-01-01T00:05:00', 'value': 28}
+        ])
+
+    def test_observation_deduplication(self):
+
+        # Check for no removal
+        return_obs = ObLo.remove_duplicate_observations(self.ok_data)
+        self.assertTrue(return_obs.shape[0] == 6)
+
+        # Check for correct removal
+        return_obs = ObLo.remove_duplicate_observations(self.duplicate_values)
+        # Num obs correct
+        self.assertTrue(return_obs.shape[0] == 5)
+        # Values kept correct
+        self.assertTrue(return_obs.loc[:, 'value'].tolist() == [23, 24, 25, 27, 28])
 
 
 class TestObservationSaving(unittest.TestCase):
